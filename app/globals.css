@@ -107,6 +107,21 @@ body {
 }
 .btn-pulse { animation: btnPulse 2.6s ease-in-out infinite; }
 
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes dialogBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dialogPanelIn {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 .text-gradient-gold {
   background: linear-gradient(100deg, #EFC75E, #FBFCF5, #EFC75E, #c9a24a);
   background-size: 200% auto;
