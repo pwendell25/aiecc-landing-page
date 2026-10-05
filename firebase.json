@@ -9,7 +9,7 @@
     {
       "source": "functions",
       "codebase": "default",
-      "runtime": "nodejs20",
+      "runtime": "nodejs22",
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
@@ -23,6 +23,13 @@
   "hosting": {
     "public": "out",
     "cleanUrls": true,
+    "redirects": [
+      {
+        "source": "/go/top10resume",
+        "destination": "https://drive.google.com/file/d/1zE96u7VYmKi8U2dkJ44s5JdlSU4UevWi/view?usp=sharing",
+        "type": 302
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
