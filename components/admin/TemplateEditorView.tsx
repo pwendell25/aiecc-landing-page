@@ -1,8 +1,15 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { EditDraft, detectTags, detectImages, saveTemplate } from '@/lib/admin/mailerData'
-import { uploadMailerImage } from '@/lib/admin/uploadImage'
+import {
+  EditDraft,
+  PERSONALIZATION_TAG,
+  detectTags,
+  detectImages,
+  saveTemplate,
+  missingRequiredTags,
+} from '@/lib/admin/mailerData'
+import { uploadMailerImage, uploadMailerAttachment } from '@/lib/admin/uploadImage'
 import ConfirmDialog from './ConfirmDialog'
 
 interface Props {
@@ -13,8 +20,6 @@ interface Props {
   onError: (msg: string) => void
 }
 
-const PERSONALIZATION_TAG = /^\[FIRST\s*NAME\]$/i
-
 type UploadTarget = { type: 'replace'; src: string } | { type: 'insert'; selStart: number; selEnd: number }
 
 export default function TemplateEditorView({ draft, setDraft, onCancel, onSaved, onError }: Props) {
@@ -22,12 +27,18 @@ export default function TemplateEditorView({ draft, setDraft, onCancel, onSaved,
   const personalizationTags = tags.filter((t) => PERSONALIZATION_TAG.test(t))
   const fillInTags = tags.filter((t) => !PERSONALIZATION_TAG.test(t))
   const images = detectImages(draft.html)
+  const requiredTags = draft.requiredTags || []
+  const missingTags = draft.protected ? missingRequiredTags(draft) : []
+  // Tags the user can lock: everything detected, plus required ones that went missing.
+  const lockableTags = [...new Set([...detectTags(draft.html + '\n' + draft.subject), ...missingTags])]
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const attachmentInputRef = useRef<HTMLInputElement>(null)
   const [tagInputs, setTagInputs] = useState<Record<string, string>>({})
   const [uploading, setUploading] = useState(false)
   const [uploadTarget, setUploadTarget] = useState<UploadTarget | null>(null)
   const [confirmReplaceSrc, setConfirmReplaceSrc] = useState<string | null>(null)
+  const [attaching, setAttaching] = useState(false)
 
   function jumpToTag(tag: string) {
     const el = textareaRef.current
@@ -73,6 +84,29 @@ export default function TemplateEditorView({ draft, setDraft, onCancel, onSaved,
     }
   }
 
+  async function handleAttachmentSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    if (file.type !== 'application/pdf') {
+      onError('Attachments must be a PDF')
+      return
+    }
+    setAttaching(true)
+    try {
+      const url = await uploadMailerAttachment(file)
+      setDraft({ ...draft, attachmentUrl: url, attachmentName: file.name })
+    } catch {
+      onError('Attachment upload failed')
+    } finally {
+      setAttaching(false)
+    }
+  }
+
+  function removeAttachment() {
+    setDraft({ ...draft, attachmentUrl: undefined, attachmentName: undefined })
+  }
+
   function applyTag(tag: string) {
     let value = (tagInputs[tag] || '').trim()
     if (!value) return
@@ -90,6 +124,11 @@ export default function TemplateEditorView({ draft, setDraft, onCancel, onSaved,
     })
   }
 
+  function toggleRequired(tag: string) {
+    const next = requiredTags.includes(tag) ? requiredTags.filter((t) => t !== tag) : [...requiredTags, tag]
+    setDraft({ ...draft, requiredTags: next })
+  }
+
   async function handleSave() {
     if (!draft.name.trim()) {
       onError('Add a template name')
@@ -99,11 +138,19 @@ export default function TemplateEditorView({ draft, setDraft, onCancel, onSaved,
       onError('Paste some HTML first')
       return
     }
+    if (missingTags.length) {
+      onError(`Required ${missingTags.length === 1 ? 'tag' : 'tags'} missing: ${missingTags.join(', ')}`)
+      return
+    }
     await saveTemplate(draft.id, {
       name: draft.name.trim(),
       subject: draft.subject.trim(),
       category: draft.category.trim() || 'General',
       html: draft.html,
+      attachmentUrl: draft.attachmentUrl,
+      attachmentName: draft.attachmentName,
+      protected: !!draft.protected,
+      requiredTags: requiredTags.filter((t) => lockableTags.includes(t)),
     })
     onSaved()
   }
@@ -221,6 +268,59 @@ export default function TemplateEditorView({ draft, setDraft, onCancel, onSaved,
           </div>
           <div>
             <div className="text-[12px] font-semibold tracking-[0.06em] uppercase text-[rgba(251,252,245,0.6)] mb-[9px]">
+              PDF attachment
+            </div>
+            {draft.attachmentUrl ? (
+              <div className="flex items-center gap-3 bg-bg border border-[rgba(239,199,94,0.16)] rounded-[11px] p-2.5">
+                <div className="w-12 h-12 rounded-[8px] bg-bg-alt flex items-center justify-center flex-none text-[18px]">
+                  📄
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-medium truncate">{draft.attachmentName || 'attachment.pdf'}</div>
+                  <div className="text-[11px] text-[rgba(251,252,245,0.4)] truncate font-mono">
+                    Sent with every email using this template
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => attachmentInputRef.current?.click()}
+                  disabled={attaching}
+                  className="cursor-pointer flex-none border border-[rgba(239,199,94,0.3)] rounded-full bg-[rgba(239,199,94,0.06)] text-accent font-medium text-[12px] px-3 py-[7px] font-sans hover:bg-[rgba(239,199,94,0.14)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {attaching ? 'Uploading…' : 'Replace'}
+                </button>
+                <button
+                  type="button"
+                  onClick={removeAttachment}
+                  disabled={attaching}
+                  className="cursor-pointer flex-none border-none bg-transparent text-[rgba(251,252,245,0.5)] font-medium text-[12px] px-2 py-[7px] font-sans hover:text-accent transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="text-[13px] text-[rgba(251,252,245,0.45)] mb-2">No PDF attached to this template.</div>
+                <button
+                  type="button"
+                  onClick={() => attachmentInputRef.current?.click()}
+                  disabled={attaching}
+                  className="cursor-pointer bg-transparent border-none text-[12px] font-sans text-accent p-0 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {attaching ? 'Uploading…' : '+ Attach a PDF'}
+                </button>
+              </>
+            )}
+            <input
+              ref={attachmentInputRef}
+              type="file"
+              accept="application/pdf"
+              onChange={handleAttachmentSelected}
+              className="hidden"
+            />
+          </div>
+          <div>
+            <div className="text-[12px] font-semibold tracking-[0.06em] uppercase text-[rgba(251,252,245,0.6)] mb-[9px]">
               Detected merge tags
             </div>
             {tags.length > 0 ? (
@@ -246,7 +346,7 @@ export default function TemplateEditorView({ draft, setDraft, onCancel, onSaved,
                 {fillInTags.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <div className="text-[12px] text-[rgba(251,252,245,0.45)]">
-                      One-time placeholders — type a value and press Enter to fill it in everywhere it appears.
+                      Fill a value in now to bake it into the template, or leave the tag and fill it per recipient when sending.
                     </div>
                     {fillInTags.map((tag) => (
                       <div key={tag} className="flex gap-2 items-center">
@@ -283,6 +383,70 @@ export default function TemplateEditorView({ draft, setDraft, onCancel, onSaved,
             ) : (
               <div className="text-[13px] text-[rgba(251,252,245,0.45)]">
                 None detected. Use [FIRST NAME] anywhere and it will be personalized on send.
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="text-[12px] font-semibold tracking-[0.06em] uppercase text-[rgba(251,252,245,0.6)] mb-[9px]">
+              Protection
+            </div>
+            <label className="flex items-start gap-3 cursor-pointer bg-bg border border-[rgba(239,199,94,0.16)] rounded-[11px] p-3">
+              <input
+                type="checkbox"
+                checked={!!draft.protected}
+                onChange={(e) => setDraft({ ...draft, protected: e.target.checked })}
+                className="mt-[3px] accent-[#EFC75E]"
+              />
+              <div>
+                <div className="text-[14px] font-medium">🔒 Protect this template</div>
+                <div className="text-[12px] text-[rgba(251,252,245,0.5)] mt-0.5">
+                  It can only be deleted by typing its name, and it can&apos;t be saved if a required tag below is
+                  removed. Use this for emails that matter, like the automatic welcome email.
+                </div>
+              </div>
+            </label>
+            {draft.protected && (
+              <div className="mt-3">
+                <div className="text-[12px] text-[rgba(251,252,245,0.45)] mb-2">
+                  Click a tag to make it required. Required tags must stay in the HTML or subject.
+                </div>
+                {lockableTags.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {lockableTags.map((tag) => {
+                      const req = requiredTags.includes(tag)
+                      const missing = missingTags.includes(tag)
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => toggleRequired(tag)}
+                          title={req ? 'Required – click to make optional' : 'Optional – click to require'}
+                          className="cursor-pointer text-[12px] font-medium rounded-full px-3 py-[5px] font-mono border transition"
+                          style={
+                            missing
+                              ? { borderColor: 'rgba(255,120,120,0.6)', background: 'rgba(255,92,92,0.12)', color: '#ff8080' }
+                              : req
+                                ? { borderColor: '#EFC75E', background: 'rgba(239,199,94,0.18)', color: '#EFC75E' }
+                                : { borderColor: 'rgba(251,252,245,0.18)', background: 'transparent', color: 'rgba(251,252,245,0.55)' }
+                          }
+                        >
+                          {req ? '🔒 ' : ''}
+                          {tag}
+                          {missing ? ' · missing' : ''}
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-[13px] text-[rgba(251,252,245,0.45)]">No merge tags in this template.</div>
+                )}
+                {missingTags.length > 0 && (
+                  <div className="text-[12px] text-[#ff8080] mt-2.5">
+                    {missingTags.join(', ')} {missingTags.length === 1 ? 'was' : 'were'} removed from the HTML. Put{' '}
+                    {missingTags.length === 1 ? 'it' : 'them'} back (or click Cancel to discard your edits) before
+                    saving.
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -8,7 +8,17 @@ import { EditDraft, MailerTemplate } from '@/lib/admin/mailerData'
 
 function draftFromTemplate(t: MailerTemplate | undefined): EditDraft {
   if (!t) return { id: null, name: '', subject: '', category: '', html: '' }
-  return { id: t.id, name: t.name, subject: t.subject, category: t.category, html: t.html }
+  return {
+    id: t.id,
+    name: t.name,
+    subject: t.subject,
+    category: t.category,
+    html: t.html,
+    attachmentUrl: t.attachmentUrl,
+    attachmentName: t.attachmentName,
+    protected: t.protected,
+    requiredTags: t.requiredTags,
+  }
 }
 
 function EditorPageInner({ id }: { id: string | null }) {

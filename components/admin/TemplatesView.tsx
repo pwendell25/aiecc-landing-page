@@ -18,9 +18,14 @@ export default function TemplatesView({ templates, onNewTemplate, onOpen, onUse,
 
   async function handleConfirmDelete() {
     if (!confirmDelete) return
-    await deleteTemplate(confirmDelete.id)
-    onDelete('Template deleted')
+    const t = confirmDelete
     setConfirmDelete(null)
+    try {
+      await deleteTemplate(t.id, !!t.protected)
+      onDelete('Template deleted')
+    } catch {
+      onDelete("Couldn't delete the template")
+    }
   }
 
   return (
@@ -65,6 +70,11 @@ export default function TemplatesView({ templates, onNewTemplate, onOpen, onUse,
                 <div className="px-4 pt-[15px] pb-4 flex flex-col flex-1">
                   <div className="flex items-center gap-2">
                     <div className="text-[15px] font-semibold flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis">
+                      {t.protected && (
+                        <span title="Protected template" className="mr-1.5">
+                          🔒
+                        </span>
+                      )}
                       {t.name}
                     </div>
                     <div className="text-[10px] font-semibold tracking-[0.08em] uppercase text-accent bg-[rgba(239,199,94,0.10)] border border-[rgba(239,199,94,0.25)] rounded-full px-[9px] py-[3px] whitespace-nowrap">
@@ -89,7 +99,7 @@ export default function TemplatesView({ templates, onNewTemplate, onOpen, onUse,
                     </button>
                     <button
                       onClick={() => setConfirmDelete(t)}
-                      title="Delete"
+                      title={t.protected ? 'Protected – type its name to delete' : 'Delete'}
                       className="cursor-pointer border border-[rgba(251,252,245,0.14)] rounded-[9px] bg-transparent text-[rgba(251,252,245,0.55)] text-[14px] px-[11px] py-2.5 font-sans hover:border-[rgba(255,120,120,0.5)] hover:text-[#ff8080] transition"
                     >
                       ✕
@@ -117,10 +127,15 @@ export default function TemplatesView({ templates, onNewTemplate, onOpen, onUse,
 
       <ConfirmDialog
         open={confirmDelete !== null}
-        title="Delete this template?"
-        message={`"${confirmDelete?.name}" will be permanently deleted. This can't be undone.`}
-        confirmLabel="Delete"
+        title={confirmDelete?.protected ? 'Delete a protected template?' : 'Delete this template?'}
+        message={
+          confirmDelete?.protected
+            ? `"${confirmDelete.name}" is protected because it's used for important or automatic emails. Type its name to unlock and permanently delete it. This can't be undone.`
+            : `"${confirmDelete?.name}" will be permanently deleted. This can't be undone.`
+        }
+        confirmLabel={confirmDelete?.protected ? 'Unlock & delete' : 'Delete'}
         danger
+        requireText={confirmDelete?.protected ? confirmDelete.name : undefined}
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmDelete(null)}
       />

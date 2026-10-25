@@ -3,7 +3,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /mailerTemplates/{id} {
-      allow read, write: if request.auth != null;
+      allow read, create, update: if request.auth != null;
+      // Protected templates (e.g. the Stripe welcome email) must be unlocked before they can be deleted.
+      allow delete: if request.auth != null && resource.data.get('protected', false) != true;
     }
     match /mailerContacts/{id} {
       allow read, write: if request.auth != null;

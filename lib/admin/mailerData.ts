@@ -3,6 +3,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   doc,
   onSnapshot,
   orderBy,
@@ -17,6 +18,12 @@ export interface MailerTemplate {
   subject: string
   category: string
   html: string
+  attachmentUrl?: string
+  attachmentName?: string
+  // Protected templates can't be deleted (also enforced in firestore.rules) and can't be saved
+  // without their required tags.
+  protected?: boolean
+  requiredTags?: string[]
   createdAt: number
 }
 
@@ -33,6 +40,10 @@ export interface EditDraft {
   subject: string
   category: string
   html: string
+  attachmentUrl?: string
+  attachmentName?: string
+  protected?: boolean
+  requiredTags?: string[]
 }
 
 export interface MailerCampaign {
@@ -71,17 +82,44 @@ export function subscribeCampaigns(cb: (campaigns: MailerCampaign[]) => void) {
 
 export async function saveTemplate(
   id: string | null,
-  data: { name: string; subject: string; category: string; html: string }
+  data: {
+    name: string
+    subject: string
+    category: string
+    html: string
+    attachmentUrl?: string
+    attachmentName?: string
+    protected?: boolean
+    requiredTags?: string[]
+  }
 ) {
+  const { attachmentUrl, attachmentName, ...rest } = data
   if (id) {
-    await updateDoc(doc(templatesRef, id), data)
+    await updateDoc(doc(templatesRef, id), {
+      ...rest,
+      attachmentUrl: attachmentUrl || deleteField(),
+      attachmentName: attachmentName || deleteField(),
+    })
   } else {
-    await addDoc(templatesRef, { ...data, createdAt: Date.now() })
+    await addDoc(templatesRef, {
+      ...rest,
+      ...(attachmentUrl ? { attachmentUrl } : {}),
+      ...(attachmentName ? { attachmentName } : {}),
+      createdAt: Date.now(),
+    })
   }
 }
 
-export async function deleteTemplate(id: string) {
+export async function deleteTemplate(id: string, unprotectFirst = false) {
+  // firestore.rules rejects deleting a protected template, so it's unlocked in a separate write first.
+  if (unprotectFirst) await updateDoc(doc(templatesRef, id), { protected: false })
   await deleteDoc(doc(templatesRef, id))
+}
+
+// Required tags that are no longer anywhere in the template's HTML or subject.
+export function missingRequiredTags(t: { html: string; subject: string; requiredTags?: string[] }): string[] {
+  const text = t.html + '\n' + t.subject
+  return (t.requiredTags || []).filter((tag) => !text.includes(tag))
 }
 
 export async function addContact(name: string, email: string) {
@@ -125,6 +163,26 @@ export function merge(html: string, contact?: { name: string } | null): string {
   if (!html) return html
   const fn = contact ? firstName(contact.name) : 'there'
   return html.split('[FIRST NAME]').join(fn).split('[FIRSTNAME]').join(fn)
+}
+
+export const PERSONALIZATION_TAG = /^\[FIRST\s*NAME\]$/i
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+// Replaces send-time merge tags (e.g. [COMPANY], [CALENDAR LINK]) with their values.
+// Blank values are skipped so the tag stays visible instead of silently vanishing.
+export function fillTags(text: string, values: Record<string, string>, isHtml = true): string {
+  if (!text) return text
+  let out = text
+  for (const [tag, raw] of Object.entries(values)) {
+    let value = (raw || '').trim()
+    if (!value) continue
+    if (/LINK\]$/i.test(tag) && !/^(https?:|mailto:|tel:)/i.test(value)) value = 'https://' + value
+    out = out.split(tag).join(isHtml ? escapeHtml(value) : value)
+  }
+  return out
 }
 
 export function detectTags(html: string): string[] {
