@@ -1,76 +1,48 @@
+import Link from 'next/link'
 import Image from 'next/image'
-import LinkedInIcon from '@/components/icons/LinkedInIcon'
 import { LINKEDIN_URL, SUPPORT_EMAIL } from '@/constants/data'
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[rgba(239,199,94,0.12)] bg-bg-alt">
-      <div
-        className="max-w-[1180px] mx-auto"
-        style={{ padding: '56px clamp(20px,5vw,56px) 36px' }}
-      >
-        {/* Top row */}
-        <div className="flex flex-wrap gap-10 justify-between items-start">
-          {/* Brand block */}
-          <div className="flex flex-col gap-4 max-w-[300px]">
-            <a href="/" className="flex items-center gap-3 no-underline">
+    <footer className="border-t border-hair">
+      <div className="max-w-[1180px] mx-auto px-6 sm:px-10 pt-14 pb-10">
+        <div className="flex flex-wrap gap-x-16 gap-y-10 justify-between items-start">
+          <div className="max-w-[300px]">
+            <Link href="/" className="flex items-center gap-3 no-underline text-ink">
               <Image
                 src="/assets/images/AI-Driven Career Coaching Logo (1).png"
-                alt="AI-Enhanced Career Coaching"
-                width={40}
-                height={40}
+                alt=""
+                width={36}
+                height={36}
                 className="object-contain"
                 unoptimized
               />
-              <span className="text-accent font-semibold text-[12px] tracking-[0.08em] uppercase leading-tight">
-                AI-Enhanced<br />Career Coaching
-              </span>
-            </a>
-            <p className="text-[13px] leading-[1.7] text-[rgba(251,252,245,0.48)]">
-              Land a competitive offer in under 90 days, or your money back.
+              <span className="font-serif text-[18px] leading-none whitespace-nowrap">AI-Enhanced Career Coaching</span>
+            </Link>
+            <p className="t-small text-stone mt-4">
+              A 90-day, AI-enhanced coaching program for defense and GovCon leaders, manager to
+              director. A better offer in 90 days or less, or your money back.
             </p>
           </div>
 
-          {/* Nav links */}
-          <div className="flex flex-col gap-3">
-            <p className="text-[11px] tracking-[0.18em] text-[rgba(251,252,245,0.35)] uppercase mb-1">
-              Navigation
-            </p>
-            <a href="#about" className="no-underline text-[13px] text-[rgba(251,252,245,0.55)] hover:text-accent transition-colors">
-              About
-            </a>
-            <a href="#proof" className="no-underline text-[13px] text-[rgba(251,252,245,0.55)] hover:text-accent transition-colors">
-              Results
-            </a>
-          </div>
-
-          {/* Contact + CTA */}
-          <div className="flex flex-col gap-3">
-            <p className="text-[11px] tracking-[0.18em] text-[rgba(251,252,245,0.35)] uppercase mb-1">
-              Contact
-            </p>
-            <a
-              href={`mailto:${SUPPORT_EMAIL}`}
-              className="no-underline text-[13px] text-[rgba(251,252,245,0.55)] hover:text-accent transition-colors"
-            >
-              {SUPPORT_EMAIL}
-            </a>
-            <a
-              href={LINKEDIN_URL}
-              target="_blank"
-              rel="noopener"
-              className="inline-flex items-center gap-2 no-underline bg-accent text-[#0a0a0a] font-semibold text-[13px] px-[18px] py-[10px] rounded-full hover:opacity-90 transition-opacity w-fit mt-1"
-            >
-              <LinkedInIcon size={14} />
-              DM on LinkedIn
-            </a>
+          <div className="flex gap-16">
+            <nav className="flex flex-col gap-2.5" aria-label="Sections">
+              <a href="#process" className="no-underline text-[15px] text-ink hover:text-gold-deep transition-colors">The program</a>
+              <a href="#about" className="no-underline text-[15px] text-ink hover:text-gold-deep transition-colors">Your coach</a>
+              <a href="#proof" className="no-underline text-[15px] text-ink hover:text-gold-deep transition-colors">Results</a>
+              <a href="#testimonials" className="no-underline text-[15px] text-ink hover:text-gold-deep transition-colors">Testimonials</a>
+              <a href="#faq" className="no-underline text-[15px] text-ink hover:text-gold-deep transition-colors">FAQ</a>
+            </nav>
+            <div className="flex flex-col gap-2.5">
+              <a href={LINKEDIN_URL} target="_blank" rel="noopener" className="no-underline text-[15px] text-ink hover:text-gold-deep transition-colors">LinkedIn</a>
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="no-underline text-[15px] text-ink hover:text-gold-deep transition-colors">{SUPPORT_EMAIL}</a>
+            </div>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-10 pt-6 border-t border-[rgba(239,199,94,0.08)] flex flex-wrap gap-3 items-center justify-between">
-          <span className="text-[11.5px] text-[rgba(251,252,245,0.3)]">© 2026 Randall Re II · All rights reserved.</span>
-          <span className="text-[11.5px] text-[rgba(251,252,245,0.3)]">AI-Enhanced Career Coaching</span>
+        <div className="mt-12 pt-5 border-t border-hair flex flex-wrap gap-3 justify-between">
+          <span className="t-small text-stone">© 2026 Randall Re II. All rights reserved.</span>
+          <span className="t-small text-stone">Serving defense, GovCon, and federal professionals.</span>
         </div>
       </div>
     </footer>

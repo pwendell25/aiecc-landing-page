@@ -1,54 +1,39 @@
-import { processSteps } from '@/constants/data'
+import { processSteps, LINKEDIN_URL } from '@/constants/data'
 
 export default function ProcessSection() {
   return (
-    <section
-      id="process"
-      className="max-w-[1180px] mx-auto"
-      style={{ padding: 'clamp(72px,9vw,120px) clamp(20px,5vw,56px)' }}
-    >
-      <div data-reveal className="max-w-[680px] mb-10">
-        <p className="text-[12px] tracking-[.22em] text-accent font-medium">HOW WE LAND YOUR DREAM JOB</p>
-        <h2
-          className="font-display font-extrabold leading-[1.06] tracking-[-0.02em] mt-4"
-          style={{ fontSize: 'clamp(30px,4.4vw,52px)' }}
-        >
-          Six steps. One outcome.
-        </h2>
-        <p className="mt-[18px] text-[16px] leading-[1.6] text-[rgba(251,252,245,.66)] font-light">
-          No fluff, no generic templates. Every step is built around your experience and the roles you
-          actually want, over a focused 90 days.
-        </p>
-      </div>
+    <section id="process" className="scroll-mt-16">
+      <div className="max-w-[1180px] mx-auto px-6 sm:px-10 py-[clamp(72px,9vw,120px)] grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
+        {/* Intro — sticks while the steps scroll */}
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <h2 className="t-heading m-0 text-ink">Six steps over ninety days, with one outcome.</h2>
+          <p className="t-lead mt-5 max-w-[440px]">
+            It&apos;s self-paced: the faster you work, the faster you get results. Some clients land
+            in 30 days. Every step is built around your experience and the roles you actually want,
+            never a generic template.
+          </p>
+          <a href={LINKEDIN_URL} target="_blank" rel="noopener" className="btn btn-linen mt-8">
+            Ask whether it fits your search
+          </a>
+        </div>
 
-      <div className="border-t border-[rgba(239,199,94,.14)]">
-        {processSteps.map((step, i) => (
-          <div
-            key={step.number}
-            data-reveal="from-left"
-            data-delay={i + 1}
-            className="group grid border-b border-[rgba(239,199,94,.14)] py-7 transition-colors duration-200 hover:border-[rgba(239,199,94,.35)] gap-y-2"
-            style={{ gridTemplateColumns: '3rem 1fr', columnGap: 'clamp(16px,3vw,48px)' }}
-          >
-            {/* Step number */}
-            <span className="font-display font-black text-[13px] tracking-[.1em] text-accent pt-[3px] group-hover:text-[#efc75e]">
-              {step.number}
-            </span>
-
-            {/* Content: title + description side-by-side on md+ */}
-            <div className="flex flex-col md:flex-row md:gap-12">
-              <h3
-                className="font-display font-bold leading-snug text-text shrink-0 self-start"
-                style={{ fontSize: 'clamp(17px,1.6vw,21px)', width: '240px' }}
-              >
-                {step.title}
-              </h3>
-              <p className="mt-2 md:mt-0 text-[14.5px] leading-[1.7] text-[rgba(251,252,245,.55)] font-light m-0">
-                {step.description}
-              </p>
-            </div>
-          </div>
-        ))}
+        {/* Steps */}
+        <ol className="m-0 p-0 list-none border-t border-hair">
+          {processSteps.map((step) => (
+            <li
+              key={step.number}
+              className="grid grid-cols-[2.75rem_1fr] gap-x-4 sm:gap-x-8 py-7 border-b border-hair"
+            >
+              <span className="font-serif text-[22px] leading-[1.15] text-gold-deep tabular-nums">
+                {step.number}
+              </span>
+              <div>
+                <h3 className="t-heading-sm m-0 text-ink">{step.title}</h3>
+                <p className="t-body m-0 mt-2 text-stone max-w-[52ch]">{step.description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   )

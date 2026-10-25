@@ -1,41 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #08080a;
-  --foreground: #FBFCF5;
+  --background: #fbf7ef;
+  --foreground: #231c14;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* ── Landing page palette ─────────────────────────────
+     Warm paper base, ink text, gold reserved for the primary
+     action. gold-deep is the only gold safe as text on paper. */
+  --color-paper: #fbf7ef;
+  --color-linen: #f2ebde;
+  --color-card: #fffdf9;
+  --color-ink: #231c14;
+  --color-stone: #857a6b;
+  --color-hair: #e4daca;
+  --color-gold: #efc75e;
+  --color-gold-deep: #846517;
+  --color-night: #141210;
+  --color-night-text: #f4ede0;
+
+  /* ── Admin dashboard palette (unchanged, dark) ───────── */
   --color-bg: #08080a;
   --color-bg-alt: #0b0b0e;
   --color-accent: #EFC75E;
   --color-text: #FBFCF5;
-  --font-sans: var(--font-poppins), sans-serif;
+
+  --font-sans: var(--font-instrument-sans), sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, serif;
   --font-display: var(--font-red-hat-display), sans-serif;
-
-  --animate-float-glow: floatGlow 9s ease-in-out infinite;
-  --animate-rise-in: riseIn 0.8s ease both;
-  --animate-shimmer: shimmer 6s linear infinite;
-  --animate-blink: blink 1.8s ease-in-out infinite;
-
-  @keyframes floatGlow {
-    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-    50% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.08); }
-  }
-  @keyframes riseIn {
-    from { transform: translateY(22px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  @keyframes shimmer {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
-  }
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.35; }
-  }
 }
 
 html {
@@ -44,89 +40,153 @@ html {
 
 body {
   margin: 0;
-  background: #08080a;
-  color: #FBFCF5;
+  background: #fbf7ef;
+  color: #231c14;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: #EFC75E;
-  color: #08080a;
+  background: #efc75e;
+  color: #231c14;
+}
+
+:focus-visible {
+  outline: 2px solid #846517;
+  outline-offset: 3px;
 }
 
 /* Explicit overrides — Tailwind v4 mishandles color names that match its own
-   utility prefixes ("bg", "text"). These unlayered rules always win over
-   @layer utilities. */
+   utility prefixes ("bg", "text"). Kept for the admin dashboard. */
 .bg-bg { background-color: #08080a; }
 .bg-bg-alt { background-color: #0b0b0e; }
 .text-text { color: #FBFCF5; }
+
+/* ── Type roles ────────────────────────────────────────── */
+.t-display {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(2.5rem, 5.6vw, 4.25rem);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+.t-heading {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  line-height: 1.12;
+  letter-spacing: -0.022em;
+}
+.t-heading-sm {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+  line-height: 1.22;
+  letter-spacing: -0.013em;
+}
+.t-lead {
+  font-size: clamp(1.0625rem, 1.3vw, 1.1875rem);
+  line-height: 1.55;
+  color: #857a6b;
+}
+.t-body {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.t-small {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* ── Buttons ───────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  white-space: nowrap;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1;
+  padding: 14px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.btn-gold {
+  background: #efc75e;
+  color: #231c14;
+  border-color: #e0b84e;
+}
+.btn-gold:hover { background: #e8bd4a; }
+.btn-ink {
+  background: #231c14;
+  color: #fbf7ef;
+}
+.btn-ink:hover { background: #3a2f22; }
+.btn-linen {
+  background: #f2ebde;
+  color: #231c14;
+}
+.btn-linen:hover { background: #e9e0cf; }
+.btn-ghost-night {
+  background: transparent;
+  color: #f4ede0;
+  border-color: rgba(244, 237, 224, 0.28);
+}
+.btn-ghost-night:hover { border-color: rgba(244, 237, 224, 0.6); }
+
+/* ── Surfaces ──────────────────────────────────────────── */
+.card {
+  background: #fffdf9;
+  border: 1px solid #e4daca;
+  border-radius: 16px;
+}
+.card-lift {
+  box-shadow:
+    0 1px 2px rgba(35, 28, 20, 0.04),
+    0 8px 24px rgba(35, 28, 20, 0.06);
+}
+
+/* ── Hero entrance: the one orchestrated motion moment ─── */
+@keyframes heroRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes cardDrift {
+  from { opacity: 0; transform: translate(var(--dx, 0), 18px) scale(0.98); }
+  to { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+.hero-rise {
+  animation: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+.hero-card {
+  animation: cardDrift 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--d, 0ms);
+}
 
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 
-/* ── Scroll-reveal ─────────────────────────────────────── */
-[data-reveal] {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1),
-              transform 0.65s cubic-bezier(0.22,1,0.36,1);
-}
-[data-reveal="from-left"]  { transform: translateX(-40px); }
-[data-reveal="from-right"] { transform: translateX(40px); }
-[data-reveal="scale"]      { transform: scale(0.96) translateY(20px); }
-
-[data-reveal][data-visible]              { opacity: 1; transform: none; }
-[data-reveal="from-left"][data-visible]  { opacity: 1; transform: none; }
-[data-reveal="from-right"][data-visible] { opacity: 1; transform: none; }
-[data-reveal="scale"][data-visible]      { opacity: 1; transform: none; }
-
-[data-delay="1"] { transition-delay:  80ms; }
-[data-delay="2"] { transition-delay: 160ms; }
-[data-delay="3"] { transition-delay: 240ms; }
-[data-delay="4"] { transition-delay: 320ms; }
-[data-delay="5"] { transition-delay: 400ms; }
-[data-delay="6"] { transition-delay: 480ms; }
-[data-delay="7"] { transition-delay: 560ms; }
-[data-delay="8"] { transition-delay: 640ms; }
-[data-delay="9"] { transition-delay: 720ms; }
-
 @media (prefers-reduced-motion: reduce) {
-  [data-reveal] {
-    transition: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
+  .hero-rise, .hero-card { animation: none !important; opacity: 1 !important; transform: none !important; }
+  [style*="marquee"] { animation: none !important; }
 }
 
-/* ── CTA button pulse ──────────────────────────────────── */
-@keyframes btnPulse {
-  0%, 100% { box-shadow: 0 16px 46px rgba(239,199,94,.3); }
-  50%       { box-shadow: 0 16px 46px rgba(239,199,94,.55), 0 0 48px rgba(239,199,94,.18); }
-}
-.btn-pulse { animation: btnPulse 2.6s ease-in-out infinite; }
-
+/* ── Admin dialog / toast (unchanged) ──────────────────── */
 @keyframes toastIn {
   from { opacity: 0; transform: translate(-50%, 12px); }
   to { opacity: 1; transform: translate(-50%, 0); }
 }
-
 @keyframes dialogBackdropIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-
 @keyframes dialogPanelIn {
   from { opacity: 0; transform: scale(0.94) translateY(10px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.text-gradient-gold {
-  background: linear-gradient(100deg, #EFC75E, #FBFCF5, #EFC75E, #c9a24a);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 6s linear infinite;
 }

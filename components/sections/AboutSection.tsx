@@ -1,78 +1,61 @@
 import Image from 'next/image'
-import { coachSkills } from '@/constants/data'
+import { stats, aboutBullets, LINKEDIN_URL } from '@/constants/data'
+import LinkedInBadge from '@/components/ui/LinkedInBadge'
 
 export default function AboutSection() {
   return (
-    <section id="about" className="bg-bg-alt border-t border-[rgba(239,199,94,.12)]">
-      <div
-        className="max-w-[1180px] mx-auto grid items-center"
-        style={{
-          padding: 'clamp(72px,9vw,120px) clamp(20px,5vw,56px)',
-          gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))',
-          gap: 'clamp(36px,5vw,72px)',
-        }}
-      >
-        {/* Coach photo */}
-        <div data-reveal="from-left" className="relative">
-          <div className="relative rounded-[20px] border border-[rgba(239,199,94,.3)] bg-[#0a0a0c] overflow-hidden aspect-[4/5]">
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(135deg,#0f0f12 0%,#1a1a1f 100%)' }}
-            />
+    <section id="about" className="bg-linen scroll-mt-16">
+      <div className="max-w-[1180px] mx-auto px-6 sm:px-10 py-[clamp(72px,9vw,120px)] grid gap-10 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-16 lg:gap-24 items-start">
+        {/* Photo as proof — tight crop, no overlays */}
+        <figure className="m-0 md:sticky md:top-28">
+          <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-hair">
             <Image
               src="/assets/randall-headshot/Randall Headshot.png"
-              alt="Randall Re II"
+              alt="Randall Re II, career coach"
               fill
-              className="object-cover object-[50%_22%]"
+              sizes="(min-width: 768px) 40vw, 100vw"
+              className="object-cover object-[50%_20%]"
               unoptimized
             />
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: 'linear-gradient(180deg,rgba(8,8,10,0) 40%,rgba(8,8,10,.82))' }}
-            />
-            <div className="absolute bottom-[18px] left-[18px] right-[18px] flex gap-2 flex-wrap">
-              <span className="text-[11px] tracking-[.08em] text-accent bg-[rgba(8,8,10,.7)] border border-[rgba(239,199,94,.3)] rounded-full px-[11px] py-[5px]">
-                LINKEDIN TOP VOICE · 2024 &amp; 2025
-              </span>
-              <span className="text-[11px] tracking-[.08em] text-accent bg-[rgba(8,8,10,.7)] border border-[rgba(239,199,94,.3)] rounded-full px-[11px] py-[5px]">
-                U.S. MILITARY VETERAN
-              </span>
-            </div>
           </div>
-        </div>
+          <figcaption className="mt-4 t-small text-stone">
+            Randall Re II. LinkedIn Top Voice in Career Coaching, 2024 and 2025. U.S. military veteran.
+          </figcaption>
+        </figure>
 
         {/* Bio */}
-        <div data-reveal="from-right" data-delay="1">
-          <p className="text-[12px] tracking-[.22em] text-accent font-medium">MEET YOUR COACH</p>
-          <h2
-            className="font-display font-extrabold leading-[1.08] tracking-[-0.02em] mt-4"
-            style={{ fontSize: 'clamp(28px,4vw,46px)' }}
-          >
-            Randall Re II
+        <div>
+          <p className="m-0 mb-4 t-small font-medium uppercase tracking-[0.14em] text-gold-deep">Why listen to Randall</p>
+          <h2 className="t-heading m-0 text-ink">
+            Not a resume writer. A strategist who&apos;s sat on both sides of the hiring table.
           </h2>
-          <p className="mt-5 text-[16px] leading-[1.7] text-[rgba(251,252,245,.72)] font-light">
-            Randall is a U.S. Military Veteran, defense industry professional, and{' '}
-            <span className="text-text">
-              LinkedIn Top Voice in Career Coaching for 2024 and 2025.
-            </span>{' '}
-            That recognition is held by only the top 1% of career coaches, awarded for credibility,
-            authority, results, strategy, and influence.
-          </p>
-          <p className="mt-4 text-[16px] leading-[1.7] text-[rgba(251,252,245,.72)] font-light">
-            He is not a resume writer. He&apos;s a career strategist who uses AI and real relationships to
-            get professionals job offers. His clients aren&apos;t underqualified. They&apos;re{' '}
-            <span className="text-text">underpositioned</span>. The work fixes that, with one outcome in
-            mind: a better offer in 90 days.
-          </p>
-          <div className="flex flex-wrap gap-[10px] mt-[26px]">
-            {coachSkills.map((skill) => (
-              <span
-                key={skill}
-                className="text-[13px] text-[rgba(251,252,245,.78)] border border-[rgba(239,199,94,.22)] rounded-full px-4 py-2"
-              >
-                {skill}
-              </span>
+          <ul className="m-0 mt-8 p-0 list-none flex flex-col gap-3.5 max-w-[60ch]">
+            {aboutBullets.map((b) => (
+              <li key={b} className="flex gap-3 t-body text-ink">
+                <span className="mt-[9px] shrink-0 w-1.5 h-1.5 rounded-full bg-gold-deep" aria-hidden="true" />
+                {b}
+              </li>
             ))}
+          </ul>
+          <p className="t-body mt-6 text-stone max-w-[62ch]">
+            His clients aren&apos;t underqualified. They&apos;re underpositioned. The work fixes
+            that, with one outcome in mind: a better offer in 90 days.
+          </p>
+
+          {/* The facts, as a ledger beside the person they belong to */}
+          <dl className="mt-10 m-0 grid grid-cols-2 gap-x-8 border-t border-hair">
+            {stats.map((stat) => (
+              <div key={stat.value} className="py-5 border-b border-hair">
+                <dt className="font-serif font-light text-ink leading-none text-[clamp(1.75rem,2.6vw,2.25rem)] tracking-[-0.02em]">
+                  {stat.value}
+                </dt>
+                <dd className="m-0 mt-2 t-small text-stone max-w-[24ch]">{stat.description}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <div className="mt-8">
+            <LinkedInBadge name="Randall Re II" subtitle="8,000+ followers on LinkedIn" url={LINKEDIN_URL} />
           </div>
         </div>
       </div>

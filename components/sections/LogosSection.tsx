@@ -1,67 +1,34 @@
 import Image from 'next/image'
 import { companies } from '@/constants/data'
 
+/* Static, monochrome "trusted by" row. The logos are mixed JPG/PNG on white,
+   so they're greyscaled and multiplied onto the paper instead of boxed in tiles. */
 export default function LogosSection() {
-  const track = [...companies, ...companies]
-
   return (
-    <section className="bg-bg border-b border-[rgba(239,199,94,.1)]">
-      <div style={{ padding: '54px 0 60px' }}>
-        <p className="text-center text-[11.5px] tracking-[.24em] text-[rgba(251,252,245,.5)] font-medium mb-[34px]">
-          CLIENTS HAVE LANDED &amp; ADVANCED ROLES AT
+    <section className="border-y border-hair">
+      <div className="max-w-[1180px] mx-auto px-6 sm:px-10 py-10 grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,9fr)] lg:gap-12 items-center">
+        <p className="m-0 t-small text-stone max-w-[220px]">
+          Coached and mentored professionals at
         </p>
-
-        {/* Marquee wrapper */}
-        <div className="relative overflow-hidden">
-          {/* Left fade */}
-          <div
-            className="absolute left-0 top-0 bottom-0 z-10 pointer-events-none"
-            style={{ width: '80px', background: 'linear-gradient(to right, #08080a, transparent)' }}
-          />
-          {/* Right fade */}
-          <div
-            className="absolute right-0 top-0 bottom-0 z-10 pointer-events-none"
-            style={{ width: '80px', background: 'linear-gradient(to left, #08080a, transparent)' }}
-          />
-
-          {/* Scrolling track — logos duplicated for seamless loop */}
-          <div
-            className="flex"
-            style={{
-              width: 'max-content',
-              gap: '14px',
-              animation: 'marquee 32s linear infinite',
-            }}
-          >
-            {track.map((company, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 flex items-center justify-center bg-[#FBFCF5] rounded-[12px]"
-                style={{
-                  width: '176px',
-                  height: '74px',
-                  padding: '14px 20px',
-                  boxShadow: '0 6px 18px rgba(0,0,0,.28)',
-                }}
-              >
-                {company.logo ? (
-                  <Image
-                    src={company.logo}
-                    alt={company.name}
-                    width={120}
-                    height={46}
-                    className="max-w-full max-h-full object-contain"
-                    unoptimized
-                  />
-                ) : (
-                  <span className="text-[13px] font-semibold text-[#08080a] text-center leading-tight">
-                    {company.name}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        <ul className="m-0 p-0 list-none flex flex-wrap items-center gap-x-9 gap-y-5">
+          {companies.map((company) => (
+            <li key={company.name} className="flex items-center">
+              {company.logo ? (
+                <Image
+                  src={company.logo}
+                  alt={company.name}
+                  width={150}
+                  height={32}
+                  className="h-7 sm:h-8 w-auto max-w-[150px] object-contain opacity-80"
+                  style={{ filter: 'grayscale(1) contrast(1.15)', mixBlendMode: 'multiply' }}
+                  unoptimized
+                />
+              ) : (
+                <span className="text-[14px] font-medium text-stone">{company.name}</span>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )

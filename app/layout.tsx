@@ -1,15 +1,23 @@
 import type { Metadata } from 'next'
-import { Poppins, Red_Hat_Display } from 'next/font/google'
-import ScrollReveal from '@/components/ui/ScrollReveal'
+import { Instrument_Sans, Source_Serif_4, Red_Hat_Display } from 'next/font/google'
 import './globals.css'
 
-const poppins = Poppins({
-  weight: ['300', '400', '500', '600'],
+const instrumentSans = Instrument_Sans({
+  weight: ['400', '500', '600'],
   subsets: ['latin'],
-  variable: '--font-poppins',
+  variable: '--font-instrument-sans',
   display: 'swap',
 })
 
+const sourceSerif = Source_Serif_4({
+  weight: ['300', '400'],
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  variable: '--font-source-serif',
+  display: 'swap',
+})
+
+// Only used by the admin dashboard.
 const redHatDisplay = Red_Hat_Display({
   weight: ['500', '700', '800', '900'],
   subsets: ['latin'],
@@ -28,11 +36,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${redHatDisplay.variable}`}>
-      <body className="font-sans bg-bg text-text">
-        <ScrollReveal />
-        {children}
-      </body>
+    <html
+      lang="en"
+      className={`${instrumentSans.variable} ${sourceSerif.variable} ${redHatDisplay.variable}`}
+    >
+      <body className="font-sans">{children}</body>
     </html>
   )
 }
